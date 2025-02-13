@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using CodeBase.Extensions;
 using CodeBase.Gameplay.Dogs;
-using CodeBase.ServersProcessing;
 using CodeBase.UI.InfoPopup;
 using CodeBase.UI.Services.Window;
 using Cysharp.Threading.Tasks;
