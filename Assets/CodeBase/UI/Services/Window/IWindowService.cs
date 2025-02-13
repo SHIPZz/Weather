@@ -16,5 +16,7 @@ namespace CodeBase.UI.Services.Window
         TWindow OpenWindow<TWindow>() where TWindow : AbstractWindowBase;
         void Hide<TWindow>() where TWindow : AbstractWindowBase;
         void Initialize();
+
+        TWindow GetWindow<TWindow>() where TWindow : AbstractWindowBase;
     }
 }

@@ -5,19 +5,20 @@ using CodeBase.UI.Facts;
 using CodeBase.UI.Home;
 using CodeBase.UI.InfoPopup;
 using CodeBase.UI.Services.Window;
+using CodeBase.UI.Weather;
 
-namespace CodeBase.Infrastructure.States.GameStates
+namespace CodeBase.Infrastructure.States.States
 {
     public class LoadingHomeScreenState : IState
     {
         private readonly ISceneLoader _sceneLoader;
-        private readonly IGameStateMachine _gameStateMachine;
+        private readonly IStateMachine _stateMachine;
         private readonly IWindowService _windowService;
 
-        public LoadingHomeScreenState(ISceneLoader sceneLoader, IGameStateMachine gameStateMachine, IWindowService windowService)
+        public LoadingHomeScreenState(ISceneLoader sceneLoader, IStateMachine stateMachine, IWindowService windowService)
         {
             _windowService = windowService;
-            _gameStateMachine = gameStateMachine;
+            _stateMachine = stateMachine;
             _sceneLoader = sceneLoader;
         }
 
@@ -25,14 +26,15 @@ namespace CodeBase.Infrastructure.States.GameStates
         {
             BindWindows();
 
-            _sceneLoader.LoadScene(Scenes.Home, () => _gameStateMachine.Enter<HomeScreenState>());
+            _sceneLoader.LoadScene(Scenes.Home, () => _stateMachine.Enter<HomeScreenState>());
         }
 
         private void BindWindows()
         {
             _windowService.Bind<HomeWindow, HomeWindowController>();
-            _windowService.Bind<FactWindow, FactWindowController>();
+            _windowService.Bind<DogFactWindow, DogTabWindowController>();
             _windowService.Bind<InfoPopupWindow, InfoPopupController>();
+            _windowService.Bind<WeatherWindow, WeatherWindowController>();
         }
 
         public void Exit()

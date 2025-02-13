@@ -16,7 +16,9 @@ namespace CodeBase.UI.Services.Window
         
         private readonly Dictionary<Type, (AbstractWindowBase Window, IController Controller)> _activeWindows = new();
 
-        public WindowService(IInstantiator instantiator, IUIStaticDataService uiStaticDataService, IUIProvider uiProvider)
+        public WindowService(IInstantiator instantiator, 
+            IUIStaticDataService uiStaticDataService,
+            IUIProvider uiProvider)
         {
             _uiProvider = uiProvider;
             _instantiator = instantiator;
@@ -27,7 +29,14 @@ namespace CodeBase.UI.Services.Window
         {
 
         }
-        
+
+        public TWindow GetWindow<TWindow>() where TWindow : AbstractWindowBase
+        {
+            (AbstractWindowBase Window, IController Controller) activeWindow = _activeWindows[typeof(TWindow)];
+
+            return (TWindow)activeWindow.Window;
+        }
+
         public void Bind<TWindow, TController>()
             where TWindow : AbstractWindowBase
             where TController : IController<TWindow>
@@ -71,18 +80,17 @@ namespace CodeBase.UI.Services.Window
 
             if (!_windowBindings.TryGetValue(windowType, out var bindingInfo))
                 throw new InvalidOperationException($"No binding found for window type {windowType.Name}");
+
+            if (_activeWindows.ContainsKey(typeof(TWindow)))
+                return (TWindow)_activeWindows[windowType].Window;
             
             var window = _instantiator.InstantiatePrefabForComponent<TWindow>(bindingInfo.Prefab, _uiProvider.MainUI);
 
             AbstractWindowModel model = null;
-
-            if (bindingInfo.ModelType != null)
-                model = (AbstractWindowModel)_instantiator.Instantiate(bindingInfo.ModelType);
-
+            
             IController<TWindow> controller = (IController<TWindow>)_instantiator.Instantiate(bindingInfo.ControllerType);
 
-            if (controller is IController<AbstractWindowModel, TWindow> controllerWithModel && model != null)
-                controllerWithModel.BindModel(model);
+            BindModelIfHas(bindingInfo, model, controller);
 
             controller.BindView(window);
             controller.Initialize();
@@ -92,7 +100,7 @@ namespace CodeBase.UI.Services.Window
 
             return window;
         }
-        
+
         public void Hide<TWindow>() where TWindow : AbstractWindowBase
         {
             var windowType = typeof(TWindow);
@@ -108,5 +116,14 @@ namespace CodeBase.UI.Services.Window
             _activeWindows.Remove(windowType);
         }
 
+        private void BindModelIfHas<TWindow>(WindowBindingInfo bindingInfo, AbstractWindowModel model, IController<TWindow> controller)
+            where TWindow : AbstractWindowBase
+        {
+            if (bindingInfo.ModelType != null)
+                model = (AbstractWindowModel)_instantiator.Instantiate(bindingInfo.ModelType);
+
+            if (controller is IController<AbstractWindowModel, TWindow> controllerWithModel && model != null)
+                controllerWithModel.BindModel(model);
+        }
     }
 }

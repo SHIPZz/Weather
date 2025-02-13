@@ -3,7 +3,7 @@
 namespace CodeBase.UI.Facts
 {
     [Serializable]
-    public class FactData
+    public class DogFactData
     {
         public int Id;
         public string ServerId;

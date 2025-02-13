@@ -1,37 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using CodeBase.UI.AbstractWindow;
-using CodeBase.UI.Weather;
+using CodeBase.UI.Tabs;
+using UniRx;
 using UnityEngine;
+using Zenject;
 
 namespace CodeBase.UI.Home
 {
     public class HomeWindow : AbstractWindowBase
     {
-        [SerializeField] private List<TabView> _tabs;
-        [SerializeField] private WeatherView _weatherView;
+        [SerializeField] private Transform _tabLayout;
 
-        public event Action<TabTypeId> TabSelected;
-        
-        private void OnEnable()
+        private readonly Subject<TabTypeId> _tabSelected = new();
+        private readonly List<TabView> _tabs = new();
+        private ITabUIFactory _tabUIFactory;
+
+        public IObservable<TabTypeId> TabSelected => _tabSelected;
+
+        [Inject]
+        private void Construct(ITabUIFactory tabUIFactory) => _tabUIFactory = tabUIFactory;
+
+        public override void Open()
         {
-            _tabs.ForEach(x => x.Selected += SendTabSelectedEvent);
+            _tabs.AddRange(_tabUIFactory.CreateAll(_tabLayout));
+            _tabs.ForEach(x => x.Selected.Subscribe(SendTabSelectedEvent).AddTo(this));
         }
 
-        private void OnDisable()
-        {
-            _tabs.ForEach(x => x.Selected -= SendTabSelectedEvent);
-        }
-
-        private void SendTabSelectedEvent(TabTypeId tabTypeId)
-        {
-            TabSelected?.Invoke(tabTypeId);
-        }
-
-        public void UpdateWeatherUI(string degrees)
-        {
-            _weatherView.SetDegrees(degrees);
-            Debug.Log($"{degrees}");
-        }
+        private void SendTabSelectedEvent(TabTypeId tabTypeId) => _tabSelected?.OnNext(tabTypeId);
     }
 }

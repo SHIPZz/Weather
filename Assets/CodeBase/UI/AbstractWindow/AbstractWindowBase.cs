@@ -6,12 +6,12 @@ namespace CodeBase.UI.AbstractWindow
     {
         public virtual void Open()
         {
-        
+            
         }
 
         public virtual void Close()
         {
-        Destroy(gameObject);
+            Destroy(gameObject);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using CodeBase.UI.AbstractWindow;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,24 +13,22 @@ namespace CodeBase.UI.InfoPopup
         [SerializeField] private TMP_Text _description;
         [SerializeField] private Button _okButton;
 
-        public event Action Exited;
-        public event Action Opened;
-        
+        private readonly Subject<Unit> _exited = new();
+        private readonly Subject<Unit> _opened = new();
+
+        public IObservable<Unit> Exited => _exited;
+        public IObservable<Unit> Opened => _opened;
+
         public void Init(string title, string description)
         {
             _title.text = title;
             _description.text = description;
         }
 
-        public override void Open()
-        {
-            Opened?.Invoke();
-        }
+        public override void Open() => _opened.OnNext(Unit.Default);
 
-        private void OnEnable() => _okButton.onClick.AddListener(SendExitEvent);
+        private void Start() => _okButton.onClick.AsObservable().Subscribe(_ => SendExitEvent()).AddTo(this);
 
-        private void OnDisable() => _okButton.onClick.RemoveListener(SendExitEvent);
-
-        private void SendExitEvent() => Exited?.Invoke();
+        private void SendExitEvent() => _exited.OnNext(Unit.Default);
     }
 }

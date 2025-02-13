@@ -4,12 +4,12 @@ using Zenject;
 
 namespace CodeBase.Infrastructure.States.StateMachine
 {
-  public class GameStateMachine : IGameStateMachine, ITickable
+  public class StateMachine : IStateMachine, ITickable
   {
     private IExitableState _activeState;
     private readonly IStateFactory _stateFactory;
 
-    public GameStateMachine(IStateFactory stateFactory)
+    public StateMachine(IStateFactory stateFactory)
     {
       _stateFactory = stateFactory;
     }
@@ -22,12 +22,18 @@ namespace CodeBase.Infrastructure.States.StateMachine
     
     public void Enter<TState>() where TState : class, IState
     {
+      if(_activeState != null && _activeState.GetType() == typeof(TState))
+        return;
+      
       IState state = ChangeState<TState>();
       state.Enter();
     }
     
     public void Enter<TState, TPayload>(TPayload payload) where TState : class, IPayloadState<TPayload>
     {
+      if(_activeState != null && _activeState.GetType() == typeof(TState))
+        return;
+      
       TState state = ChangeState<TState>();
       state.Enter(payload);
     }

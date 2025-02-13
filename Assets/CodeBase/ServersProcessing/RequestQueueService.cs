@@ -8,7 +8,7 @@ namespace CodeBase.ServersProcessing
     {
         private readonly Queue<Func<UniTask>> _requestQueue = new();
         
-        private bool _isProcessing = false;
+        private bool _isProcessing;
 
         public void AddRequest(Func<UniTask> request)
         {

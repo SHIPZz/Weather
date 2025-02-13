@@ -1,12 +1,13 @@
 ﻿using System;
 using CodeBase.UI.Loading;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace CodeBase.UI.Facts
 {
-    public class FactItemView : MonoBehaviour
+    public class DogFactItemView : MonoBehaviour
     {
         [SerializeField] private TMP_Text _rank;
         [SerializeField] private TMP_Text _name;
@@ -16,7 +17,7 @@ namespace CodeBase.UI.Facts
        
         private string _id;
 
-        public event Action<string> Selected;
+        public IObservable<string> Selected => _button.OnClickAsObservable().Select(_ => _id);
 
         public string ID => _id;
 
@@ -29,19 +30,8 @@ namespace CodeBase.UI.Facts
             _loadingView.Hide();
         }
 
-        public void StopLoadingAnimation()
-        {
-            _loadingView.Hide();
-        }
+        public void StopLoadingAnimation() => _loadingView.Hide();
 
-        private void OnEnable() => _button.onClick.AddListener(SendEvent);
-
-        private void OnDisable() => _button.onClick.RemoveListener(SendEvent);
-
-        private void SendEvent()
-        {
-            _loadingView.Show();
-            Selected?.Invoke(_id);
-        }
+        public void ShowLoadingAnimation() => _loadingView.Show();
     }
 }

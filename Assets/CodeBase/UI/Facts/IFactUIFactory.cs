@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace CodeBase.UI.Facts
 {
-    public interface IFactUIFactory
+    public interface IDogFactUIFactory
     {
-        FactItemView CreateFactItem(Transform parent, FactData factData);
+        DogFactItemView CreateFactItem(Transform parent, DogFactData dogFactData);
     }
 }

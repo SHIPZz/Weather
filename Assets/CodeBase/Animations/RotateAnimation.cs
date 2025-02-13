@@ -22,34 +22,29 @@ namespace CodeBase.Animations
 
         public void Do()
         {
-            if (_rotateTween != null && _rotateTween.IsActive())
-            {
-                _rotateTween.Kill();
-            }
+            _rotateTween?.Kill();
+
+            _target.rotation = _initialRotation;
 
             _rotateTween = _target
-                .DORotate(_rotationAxis * _targetRotationAngle, _rotationDuration, RotateMode.FastBeyond360)
-                .SetEase(_easeType)
-                .SetLoops(_rotateInfinitely ? -1 : 0, LoopType.Incremental)
-                .OnKill(() => _rotateTween = null);
+                    .DORotate(_rotationAxis * _targetRotationAngle, _rotationDuration, RotateMode.FastBeyond360)
+                    .From(_initialRotation.eulerAngles)
+                    .SetEase(_easeType)
+                    .SetLoops(_rotateInfinitely ? -1 : 0, LoopType.Incremental)
+                    .OnKill(() => _rotateTween = null)
+                ;
         }
 
         public void Stop()
         {
-            if (_rotateTween != null && _rotateTween.IsActive())
-            {
-                _rotateTween.Kill();
-            }
+            _rotateTween?.Kill();
 
             _target.rotation = _initialRotation;
         }
 
         private void OnDestroy()
         {
-            if (_rotateTween != null && _rotateTween.IsActive())
-            {
-                _rotateTween.Kill();
-            }
+            _rotateTween?.Kill();
         }
     }
 }

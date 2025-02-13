@@ -1,35 +1,21 @@
-﻿using System;
-using CodeBase.Gameplay.Dogs;
-using CodeBase.UI.Services.Window;
+﻿using CodeBase.UI.Services.Window;
+using UniRx;
 using Zenject;
 
 namespace CodeBase.UI.InfoPopup
 {
-    public class InfoPopupController : IController<InfoPopupWindow>, IDisposable
+    public class InfoPopupController : IController<InfoPopupWindow>
     {
+        private readonly CompositeDisposable _compositeDisposable = new();
+        
         private IWindowService _windowService;
-        private IDogService _dogService;
+        
         public InfoPopupWindow View { get; private set; }
 
         [Inject]
-        private void Construct(IWindowService windowService, IDogService dogService)
+        private void Construct(IWindowService windowService)
         {
-            _dogService = dogService;
             _windowService = windowService;
-        }
-
-        public void Initialize()
-        {
-            View.Exited += ProcessExitEvent;
-            View.Opened += InitView;
-        }
-
-        private void InitView()
-        {
-            DogFact lastSelectedDog = _dogService.GetLastSelectedDog();
-
-            if (lastSelectedDog != null)
-                View.Init(lastSelectedDog.attributes.name, lastSelectedDog.attributes.description);
         }
 
         public void BindView(InfoPopupWindow value)
@@ -37,14 +23,19 @@ namespace CodeBase.UI.InfoPopup
             View = value;
         }
 
-        public void Dispose()
+        public void Initialize()
         {
-            View.Exited -= ProcessExitEvent;
+            View.Exited.Subscribe(_ =>  ProcessExitEvent()).AddTo(_compositeDisposable);
         }
 
         private void ProcessExitEvent()
         {
             _windowService.Hide<InfoPopupWindow>();
+        }
+
+        public void Dispose()
+        {
+            _compositeDisposable?.Dispose();
         }
     }
 }

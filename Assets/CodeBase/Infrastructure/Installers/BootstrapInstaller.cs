@@ -3,13 +3,15 @@ using CodeBase.Gameplay.Dogs;
 using CodeBase.Infrastructure.AssetManagement;
 using CodeBase.Infrastructure.Loading;
 using CodeBase.Infrastructure.States.Factory;
-using CodeBase.Infrastructure.States.GameStates;
 using CodeBase.Infrastructure.States.StateMachine;
+using CodeBase.Infrastructure.States.States;
 using CodeBase.ServersProcessing;
 using CodeBase.StaticData;
 using CodeBase.UI.Facts;
 using CodeBase.UI.Services;
 using CodeBase.UI.Services.Window;
+using CodeBase.UI.Tabs;
+using CodeBase.UI.Weather;
 using Zenject;
 
 namespace CodeBase.Infrastructure.Installers
@@ -22,18 +24,19 @@ namespace CodeBase.Infrastructure.Installers
             BindInfrastructureServices();
             BindAssetManagementServices();
             BindCommonServices();
-            BindGameplayServices();
+            BindAppServices();
             BindUIServices();
-            BindGameStates();
+            BindStates();
             BindServerApiServices();
             BindUIFactories();
 
-            Container.BindInterfacesAndSelfTo<GameStateMachine>().AsSingle();
+            Container.BindInterfacesAndSelfTo<StateMachine>().AsSingle();
         }
 
         private void BindUIFactories()
         {
-            Container.Bind<IFactUIFactory>().To<FactUIFactory>().AsSingle();
+            Container.Bind<IDogFactUIFactory>().To<DogDogFactUIFactory>().AsSingle();
+            Container.Bind<ITabUIFactory>().To<TabUIFactory>().AsSingle();
         }
 
         private void BindServerApiServices()
@@ -49,16 +52,19 @@ namespace CodeBase.Infrastructure.Installers
             Container.Bind<IUIStaticDataService>().To<UIStaticDataService>().AsSingle();
         }
         
-        private void BindGameStates()
+        private void BindStates()
         {
             Container.BindInterfacesAndSelfTo<BootstrapState>().AsSingle();
             Container.BindInterfacesAndSelfTo<LoadingHomeScreenState>().AsSingle();
             Container.BindInterfacesAndSelfTo<HomeScreenState>().AsSingle();
+            Container.BindInterfacesAndSelfTo<WeatherTabState>().AsSingle();
+            Container.BindInterfacesAndSelfTo<DogTabState>().AsSingle();
         }
 
-        private void BindGameplayServices()
+        private void BindAppServices()
         {
             Container.Bind<IDogService>().To<DogService>().AsSingle();
+            Container.Bind<IWeatherService>().To<WeatherService>().AsSingle();
         }
 
         private void BindInfrastructureServices()
@@ -80,7 +86,7 @@ namespace CodeBase.Infrastructure.Installers
 
         public void Initialize()
         {
-            Container.Resolve<IGameStateMachine>().Enter<BootstrapState>();
+            Container.Resolve<IStateMachine>().Enter<BootstrapState>();
         }
     }
 }

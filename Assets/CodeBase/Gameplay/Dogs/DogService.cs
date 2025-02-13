@@ -1,37 +1,77 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using CodeBase.ServersProcessing;
+using Cysharp.Threading.Tasks;
+using UniRx;
+using UnityEngine;
 
 namespace CodeBase.Gameplay.Dogs
 {
     public class DogService : IDogService
     {
-        private readonly Dictionary<int, DogFact> _dogs = new();
-        private int _nextDogId = 1;
-        private DogFact _lastDog;
+        private const int MaxDogCount = 10;
         
+        private readonly IServerApiService _serverApiService;
+        private readonly Dictionary<string, DogFact> _dogs = new();
+        private readonly ReactiveProperty<DogFact> _dogFact = new();
 
-        public void Add(DogFact dogData)
+        public IReadOnlyReactiveProperty<DogFact> DogFact => _dogFact;
+
+        public DogService(IServerApiService serverApiService)
         {
-            _dogs[_nextDogId] = dogData;
-            _nextDogId++;
+          _serverApiService = serverApiService ?? throw new ArgumentNullException(nameof(serverApiService));
         }
 
         public void Add(IEnumerable<DogFact> dogData)
         {
             foreach (var dogFact in dogData)
             {
-                Add(dogFact);
+                _dogs[dogFact.id] = dogFact;
             }
         }
 
-        public void SetLastSelectedDog(DogFact data)
+        public async UniTask GetDogFactsAsync(CancellationToken cancellationToken)
         {
-            _lastDog = data;
+            try
+            {
+                string result = await _serverApiService.GetApiResponseAsync(ApiUrl.DogApiUrl, cancellationToken);
+                DogFactsResponse dogFactsResponse = JsonUtility.FromJson<DogFactsResponse>(result);
+
+                if (dogFactsResponse != null && dogFactsResponse.data.Count > 0)
+                {
+                    IEnumerable<DogFact> targetDogs = dogFactsResponse.data.Take(MaxDogCount);
+
+                    Add(targetDogs);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.Log("Request dog fact was canceled");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Request dog fact error: {ex.Message}");
+            }
         }
 
-        public DogFact Get(int id) => _dogs[id];
-        
-        public DogFact GetLastSelectedDog() => _lastDog;
+        public async UniTask<DogFact> GetDogFactAsync(string id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                string result = await _serverApiService.GetApiResponseAsync($"{ApiUrl.DogApiUrl}/{id}", cancellationToken);
+                var dogFactResponse = JsonUtility.FromJson<DogFactResponse>(result);
+                return dogFactResponse.data;
+            }
+            catch (Exception ex)
+            {
+                // ignored
+            }
 
-        public List<DogFact> GetAll() => new(_dogs.Values);
+            return null;
+        }
+
+        public IEnumerable<DogFact> GetAll() => _dogs.Values;
     }
 }

@@ -1,25 +1,26 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using CodeBase.UI.Facts;
 
 namespace CodeBase.Extensions
 {
     public static class DataExtensions
     {
-        public static List<FactData> AsFactDataList(this List<DogFact> from)
+        public static List<DogFactData> AsFactDataList(this IEnumerable<DogFact> from)
         {
-            List<FactData> to = new();
+            List<DogFactData> to = new();
             
-            for (int i = 0; i < from.Count; i++)
+            for (int i = 0; i < from.Count(); i++)
             {
-                FactData factData = new FactData()
+                DogFactData dogFactData = new DogFactData()
                 {
                     Id = i + 1,
-                    Name = from[i].attributes.name,
-                    Description = from[i].attributes.description,
-                    ServerId = from[i].id
+                    Name = from.ElementAt(i).attributes.name,
+                    Description = from.ElementAt(i).attributes.description,
+                    ServerId = from.ElementAt(i).id
                 };
                 
-                to.Add(factData);
+                to.Add(dogFactData);
             }
 
             return to;

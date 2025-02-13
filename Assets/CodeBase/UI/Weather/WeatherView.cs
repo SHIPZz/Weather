@@ -1,15 +1,16 @@
-﻿using TMPro;
+﻿using CodeBase.UI.AbstractWindow;
+using TMPro;
 using UnityEngine;
 
 namespace CodeBase.UI.Weather
 {
-    public class WeatherView : MonoBehaviour
+    public class WeatherWindow : AbstractWindowBase
     {
-        [SerializeField] private TMP_Text _degrees;
+        [SerializeField] private TMP_Text _weather;
 
-        public void SetDegrees(string degrees)
+        public void UpdateWeather(string weather)
         {
-            _degrees.text = degrees;
+            _weather.text = weather;
         }
     }
 }
