@@ -17,8 +17,7 @@ namespace CodeBase.UI.Facts
 
         private CancellationTokenSource _cancellationToken = new();
         private string _lastFactId;
-
-        public DogFactWindow View { get; private set; }
+        private DogFactWindow _view;
 
         public DogTabWindowController(IDogService dogService, IWindowService windowService)
         {
@@ -28,12 +27,12 @@ namespace CodeBase.UI.Facts
 
         public void Initialize()
         {
-            View
+            _view
                 .Opened
                 .Subscribe(_ => InitView())
                 .AddTo(_compositeDisposable);
 
-            View
+            _view
                 .FactSelected
                 .Subscribe(id => ProcessGettingDogFactAsync(id).Forget())
                 .AddTo(_compositeDisposable);
@@ -49,7 +48,7 @@ namespace CodeBase.UI.Facts
                 _cancellationToken = new();
                 _windowService.Hide<InfoPopupWindow>();
 
-                View.ShowLoadingAnimation(id);
+                _view.ShowLoadingAnimation(id);
 
                 dogFact = await _dogService.GetDogFactAsync(id, _cancellationToken.Token);
 
@@ -57,7 +56,7 @@ namespace CodeBase.UI.Facts
                     .OpenWindow<InfoPopupWindow>()
                     .Init(dogFact.attributes.name, dogFact.attributes.description);
                 
-                View.StopItemLoadingAnimation(id);
+                _view.StopItemLoadingAnimation(id);
             }
             catch (Exception e)
             {
@@ -67,7 +66,7 @@ namespace CodeBase.UI.Facts
 
         public void BindView(DogFactWindow value)
         {
-            View = value;
+            _view = value;
         }
 
         public void Dispose()
@@ -79,7 +78,7 @@ namespace CodeBase.UI.Facts
 
         private void InitView()
         {
-            View.Init(_dogService.GetAll().AsFactDataList());
+            _view.Init(_dogService.GetAll().AsFactDataList());
         }
 
         private void Cleanup()

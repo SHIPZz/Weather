@@ -22,7 +22,7 @@ namespace CodeBase.Animations
 
         public void Do()
         {
-            _rotateTween?.Kill();
+            _rotateTween?.Kill(true);
 
             _target.rotation = _initialRotation;
 
@@ -32,12 +32,13 @@ namespace CodeBase.Animations
                     .SetEase(_easeType)
                     .SetLoops(_rotateInfinitely ? -1 : 0, LoopType.Incremental)
                     .OnKill(() => _rotateTween = null)
+                    .OnComplete(() => _rotateTween = null) 
                 ;
         }
 
         public void Stop()
         {
-            _rotateTween?.Kill();
+            _rotateTween?.Kill(true);
 
             _target.rotation = _initialRotation;
         }

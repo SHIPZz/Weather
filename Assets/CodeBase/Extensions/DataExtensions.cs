@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CodeBase.UI.Facts;
+using CodeBase.Models;
 
 namespace CodeBase.Extensions
 {
@@ -16,7 +16,6 @@ namespace CodeBase.Extensions
                 {
                     Id = i + 1,
                     Name = from.ElementAt(i).attributes.name,
-                    Description = from.ElementAt(i).attributes.description,
                     ServerId = from.ElementAt(i).id
                 };
                 

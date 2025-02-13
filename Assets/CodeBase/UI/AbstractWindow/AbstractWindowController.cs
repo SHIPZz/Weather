@@ -1,3 +1,0 @@
-﻿namespace CodeBase.UI.AbstractWindow
-{
-}

@@ -1,3 +1,4 @@
+using CodeBase.Models;
 using UnityEngine;
 
 namespace CodeBase.UI.Facts

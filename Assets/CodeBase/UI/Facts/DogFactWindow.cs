@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CodeBase.Models;
 using CodeBase.UI.AbstractWindow;
 using UniRx;
 using UnityEngine;

@@ -1,4 +1,5 @@
-﻿using UniRx;
+﻿using System;
+using UniRx;
 
 namespace CodeBase.UI.Weather
 {
@@ -7,24 +8,24 @@ namespace CodeBase.UI.Weather
         private readonly CompositeDisposable _compositeDisposable = new();
         private readonly IWeatherService _weatherService;
 
-        public WeatherWindow View { get; private set; }
+        private WeatherWindow _view;
         
         public WeatherWindowController(IWeatherService weatherService)
         {
-            _weatherService = weatherService;
+            _weatherService = weatherService ?? throw new ArgumentNullException(nameof(weatherService));
         }
         
         public void Initialize()
         {
             _weatherService
                 .WeatherInfo
-                .Subscribe(weather => View.UpdateWeather(weather))
+                .Subscribe(weather => _view.UpdateWeather(weather))
                 .AddTo(_compositeDisposable);
         }
 
         public void BindView(WeatherWindow value)
         {
-            View = value;
+            _view = value;
         }
 
         public void Dispose()

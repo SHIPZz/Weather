@@ -26,7 +26,7 @@ namespace CodeBase.UI.Weather
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                _requestQueueService.AddRequest(async () => await ProcessWeatherAsync(cancellationToken));
+                _requestQueueService.AddRequest(ProcessWeatherAsync);
                 
                 await UniTask.WaitForSeconds(5f, true, PlayerLoopTiming.Update, cancellationToken,
                     cancelImmediately: true);

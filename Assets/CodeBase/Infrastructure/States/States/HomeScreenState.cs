@@ -1,3 +1,4 @@
+using System;
 using CodeBase.Infrastructure.States.StateInfrastructure;
 using CodeBase.Infrastructure.States.StateMachine;
 using CodeBase.UI.Home;
@@ -12,8 +13,8 @@ namespace CodeBase.Infrastructure.States.States
 
         public HomeScreenState(IWindowService windowService, IStateMachine stateMachine)
         {
-            _stateMachine = stateMachine;
-            _windowService = windowService;
+            _stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
+            _windowService = windowService ?? throw new ArgumentNullException(nameof(windowService));
         }
 
         public void Enter()

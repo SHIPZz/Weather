@@ -11,7 +11,7 @@ namespace CodeBase.UI.Home
         
         private readonly IStateMachine _stateMachine;
 
-        public HomeWindow View { get; private set; }
+        private HomeWindow _view;
 
         public HomeWindowController(IStateMachine stateMachine)
         {
@@ -20,12 +20,12 @@ namespace CodeBase.UI.Home
 
         public void BindView(HomeWindow value)
         {
-            View = value;
+            _view = value;
         }
 
         public void Initialize()
         {
-            View
+            _view
                 .TabSelected
                 .Subscribe(OnTabSelected)
                 .AddTo(_compositeDisposable);

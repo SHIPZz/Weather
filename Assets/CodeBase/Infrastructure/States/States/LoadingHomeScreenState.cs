@@ -1,3 +1,4 @@
+using System;
 using CodeBase.Infrastructure.Loading;
 using CodeBase.Infrastructure.States.StateInfrastructure;
 using CodeBase.Infrastructure.States.StateMachine;
@@ -17,9 +18,9 @@ namespace CodeBase.Infrastructure.States.States
 
         public LoadingHomeScreenState(ISceneLoader sceneLoader, IStateMachine stateMachine, IWindowService windowService)
         {
-            _windowService = windowService;
-            _stateMachine = stateMachine;
-            _sceneLoader = sceneLoader;
+            _windowService = windowService ?? throw new ArgumentNullException(nameof(windowService));
+            _stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
+            _sceneLoader = sceneLoader ?? throw new ArgumentNullException(nameof(sceneLoader));
         }
 
         public void Enter()

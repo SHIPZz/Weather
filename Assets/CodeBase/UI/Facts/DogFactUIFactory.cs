@@ -1,6 +1,7 @@
 ﻿using CodeBase.Constants;
 using CodeBase.Extensions;
 using CodeBase.Infrastructure.AssetManagement;
+using CodeBase.Models;
 using UnityEngine;
 using Zenject;
 

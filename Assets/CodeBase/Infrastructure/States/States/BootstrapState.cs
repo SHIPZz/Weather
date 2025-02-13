@@ -1,4 +1,5 @@
-﻿using CodeBase.Infrastructure.States.StateInfrastructure;
+﻿using System;
+using CodeBase.Infrastructure.States.StateInfrastructure;
 using CodeBase.Infrastructure.States.StateMachine;
 using CodeBase.ServersProcessing;
 
@@ -12,8 +13,8 @@ namespace CodeBase.Infrastructure.States.States
         public BootstrapState(IStateMachine stateMachine, 
             IServerApiService serverApiService)
         {
-            _serverApiService = serverApiService;
-            _stateMachine = stateMachine;
+            _serverApiService = serverApiService ?? throw new ArgumentNullException(nameof(serverApiService));
+            _stateMachine = stateMachine  ?? throw new ArgumentNullException(nameof(stateMachine));
         }
 
         public void Enter()

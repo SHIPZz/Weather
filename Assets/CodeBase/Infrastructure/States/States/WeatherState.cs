@@ -23,16 +23,9 @@ namespace CodeBase.Infrastructure.States.States
         {
             _cancellationToken = new CancellationTokenSource();
             
-            InitWeatherAsync(_cancellationToken.Token).Forget();
-        }
-
-        private async UniTask InitWeatherAsync(CancellationToken cancellationToken)
-        {
-            await _weatherService.ProcessWeatherAsync(cancellationToken);
-            
+            _weatherService.LaunchWeatherContinuouslyRequesting(_cancellationToken.Token).Forget();
+         
             _windowService.OpenWindow<WeatherWindow>();
-            
-             _weatherService.LaunchWeatherContinuouslyRequesting(cancellationToken).Forget();
         }
 
         public void Exit()

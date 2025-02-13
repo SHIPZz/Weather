@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CodeBase.UI.Facts
+namespace CodeBase.Models
 {
     [Serializable]
     public class DogFactData
@@ -8,6 +8,5 @@ namespace CodeBase.UI.Facts
         public int Id;
         public string ServerId;
         public string Name;
-        public string Description;
     }
 }

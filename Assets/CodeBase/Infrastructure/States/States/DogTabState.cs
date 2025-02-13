@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using CodeBase.Gameplay.Dogs;
 using CodeBase.Infrastructure.States.StateInfrastructure;
 using CodeBase.UI.Facts;
@@ -17,8 +18,8 @@ namespace CodeBase.Infrastructure.States.States
 
         public DogTabState(IWindowService windowService, IDogService dogService)
         {
-            _dogService = dogService;
-            _windowService = windowService;
+            _dogService = dogService ?? throw new ArgumentNullException(nameof(dogService));
+            _windowService = windowService ?? throw new ArgumentNullException(nameof(windowService));
         }
 
         public void Enter()
