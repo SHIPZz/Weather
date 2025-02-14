@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CodeBase.StaticData;
 using CodeBase.UI.AbstractWindow;
+using CodeBase.UI.Controllers;
 using Zenject;
 
 namespace CodeBase.UI.Services.Window
@@ -11,12 +12,11 @@ namespace CodeBase.UI.Services.Window
         private readonly IInstantiator _instantiator;
         private readonly IUIStaticDataService _uiStaticDataService;
         private readonly IUIProvider _uiProvider;
-        
+
         private readonly Dictionary<Type, WindowBindingInfo> _windowBindings = new();
-        
         private readonly Dictionary<Type, (AbstractWindowBase Window, IController Controller)> _activeWindows = new();
 
-        public WindowService(IInstantiator instantiator, 
+        public WindowService(IInstantiator instantiator,
             IUIStaticDataService uiStaticDataService,
             IUIProvider uiProvider)
         {
@@ -25,24 +25,12 @@ namespace CodeBase.UI.Services.Window
             _uiStaticDataService = uiStaticDataService;
         }
 
-        public void Initialize()
-        {
-
-        }
-
-        public TWindow GetWindow<TWindow>() where TWindow : AbstractWindowBase
-        {
-            (AbstractWindowBase Window, IController Controller) activeWindow = _activeWindows[typeof(TWindow)];
-
-            return (TWindow)activeWindow.Window;
-        }
-
         public void Bind<TWindow, TController>()
             where TWindow : AbstractWindowBase
             where TController : IController<TWindow>
         {
             var windowType = typeof(TWindow);
-            
+
             if (_windowBindings.ContainsKey(windowType))
                 throw new InvalidOperationException($"Window type {windowType.Name} is already bound.");
 
@@ -54,14 +42,14 @@ namespace CodeBase.UI.Services.Window
                 Prefab = _uiStaticDataService.GetWindow<TWindow>()
             };
         }
-        
+
         public void Bind<TWindow, TController, TModel>()
             where TWindow : AbstractWindowBase
             where TModel : AbstractWindowModel
-            where TController : IController<TModel, TWindow>
+            where TController : IModelBindable
         {
             var windowType = typeof(TWindow);
-            
+
             if (_windowBindings.ContainsKey(windowType))
                 throw new InvalidOperationException($"Window type {windowType.Name} is already bound.");
 
@@ -73,29 +61,25 @@ namespace CodeBase.UI.Services.Window
                 Prefab = _uiStaticDataService.GetWindow<TWindow>()
             };
         }
-        
+
         public TWindow OpenWindow<TWindow>() where TWindow : AbstractWindowBase
         {
-            var windowType = typeof(TWindow);
+            Type windowType = typeof(TWindow);
 
             if (!_windowBindings.TryGetValue(windowType, out var bindingInfo))
                 throw new InvalidOperationException($"No binding found for window type {windowType.Name}");
 
             if (_activeWindows.ContainsKey(typeof(TWindow)))
                 return (TWindow)_activeWindows[windowType].Window;
-            
-            var window = _instantiator.InstantiatePrefabForComponent<TWindow>(bindingInfo.Prefab, _uiProvider.MainUI);
 
-            AbstractWindowModel model = null;
-            
+            TWindow window = _instantiator.InstantiatePrefabForComponent<TWindow>(bindingInfo.Prefab, _uiProvider.MainUI);
+
             IController<TWindow> controller = (IController<TWindow>)_instantiator.Instantiate(bindingInfo.ControllerType);
 
-            BindModelIfHas(bindingInfo, model, controller);
+            BindModelIfHas(bindingInfo, controller);
 
-            controller.BindView(window);
-            controller.Initialize();
-            window.Open();
-            
+            InitWindow(controller, window);
+
             _activeWindows[windowType] = (window, (controller));
 
             return window;
@@ -107,7 +91,7 @@ namespace CodeBase.UI.Services.Window
 
             if (!_activeWindows.TryGetValue(windowType, out var windowData))
                 return;
-            
+
             windowData.Window.Close();
 
             if (windowData.Controller is IDisposable disposable)
@@ -116,14 +100,23 @@ namespace CodeBase.UI.Services.Window
             _activeWindows.Remove(windowType);
         }
 
-        private void BindModelIfHas<TWindow>(WindowBindingInfo bindingInfo, AbstractWindowModel model, IController<TWindow> controller)
-            where TWindow : AbstractWindowBase
+        private void BindModelIfHas(WindowBindingInfo bindingInfo, IController controller)
         {
             if (bindingInfo.ModelType != null)
-                model = (AbstractWindowModel)_instantiator.Instantiate(bindingInfo.ModelType);
+            {
+                var model = (AbstractWindowModel)_instantiator.Instantiate(bindingInfo.ModelType);
 
-            if (controller is IController<AbstractWindowModel, TWindow> controllerWithModel && model != null)
-                controllerWithModel.BindModel(model);
+                if (controller is IModelBindable controllerWithModel)
+                    controllerWithModel.BindModel(model);
+            }
+        }
+
+        private static void InitWindow<TWindow>(IController<TWindow> controller, TWindow window)
+            where TWindow : AbstractWindowBase
+        {
+            controller.BindView(window);
+            controller.Initialize();
+            window.Open();
         }
     }
 }

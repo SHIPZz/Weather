@@ -1,18 +1,20 @@
-﻿using CodeBase.UI.Services.Window;
+﻿using System;
+using CodeBase.UI.AbstractWindow;
+using CodeBase.UI.Controllers;
+using CodeBase.UI.Services.Window;
 using UniRx;
-using Zenject;
 
 namespace CodeBase.UI.InfoPopup
 {
     public class InfoPopupController : IController<InfoPopupWindow>
     {
         private readonly CompositeDisposable _compositeDisposable = new();
+        private readonly IWindowService _windowService;
         
-        private IWindowService _windowService;
         private InfoPopupWindow _view;
 
-        [Inject]
-        private void Construct(IWindowService windowService) => _windowService = windowService;
+        public InfoPopupController(IWindowService windowService) =>
+            _windowService = windowService ?? throw new ArgumentNullException(nameof(windowService));
 
         public void BindView(InfoPopupWindow value) => _view = value;
 
