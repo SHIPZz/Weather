@@ -1,5 +1,4 @@
 ﻿using System;
-using CodeBase.UI.AbstractWindow;
 using CodeBase.UI.Controllers;
 using CodeBase.UI.Services.Window;
 using UniRx;
@@ -20,8 +19,8 @@ namespace CodeBase.UI.InfoPopup
 
         public void Initialize() => _view.Exited.Subscribe(_ =>  ProcessExitEvent()).AddTo(_compositeDisposable);
 
-        private void ProcessExitEvent() => _windowService.Hide<InfoPopupWindow>();
-
         public void Dispose() => _compositeDisposable?.Dispose();
+        
+        private void ProcessExitEvent() => _windowService.Hide<InfoPopupWindow>();
     }
 }
