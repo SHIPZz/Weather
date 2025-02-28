@@ -23,7 +23,7 @@ namespace CodeBase.Infrastructure.States.States
         {
             _cancellationToken = new CancellationTokenSource();
             
-            _weatherService.LaunchWeatherContinuouslyRequesting(_cancellationToken.Token).Forget();
+            _weatherService.LaunchWeatherContinuouslyRequestingAsync(_cancellationToken.Token).Forget();
          
             _windowService.OpenWindow<WeatherWindow>();
         }

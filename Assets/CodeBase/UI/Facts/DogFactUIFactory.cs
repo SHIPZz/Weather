@@ -7,12 +7,12 @@ using Zenject;
 
 namespace CodeBase.UI.Facts
 {
-    public class DogDogFactUIFactory : IDogFactUIFactory
+    public class DogFactUIFactory : IDogFactUIFactory
     {
         private readonly IInstantiator _instantiator;
         private readonly IAssetProvider _assetProvider;
 
-        public DogDogFactUIFactory(IInstantiator instantiator, IAssetProvider assetProvider)
+        public DogFactUIFactory(IInstantiator instantiator, IAssetProvider assetProvider)
         {
             _instantiator = instantiator;
             _assetProvider = assetProvider;

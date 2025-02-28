@@ -9,6 +9,8 @@ namespace CodeBase.UI.Weather
 {
     public class WeatherService : IWeatherService
     {
+        private const float RequestPeriod = 5f;
+                
         private readonly ReactiveProperty<string> _weatherInfo = new(string.Empty);
         private readonly CancellationTokenSource _cancellationToken = new();
         private readonly IServerApiService _serverApiService;
@@ -22,13 +24,13 @@ namespace CodeBase.UI.Weather
             _serverApiService = serverApiService ?? throw new ArgumentNullException(nameof(serverApiService));
         }
 
-        public async UniTask LaunchWeatherContinuouslyRequesting(CancellationToken cancellationToken)
+        public async UniTask LaunchWeatherContinuouslyRequestingAsync(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
                 _requestQueueService.AddRequest(ProcessWeatherAsync);
-                
-                await UniTask.WaitForSeconds(5f, true, PlayerLoopTiming.Update, cancellationToken,
+
+                await UniTask.WaitForSeconds(RequestPeriod, true, PlayerLoopTiming.Update, cancellationToken,
                     cancelImmediately: true);
             }
         }

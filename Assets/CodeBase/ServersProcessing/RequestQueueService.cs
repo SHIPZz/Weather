@@ -13,21 +13,28 @@ namespace CodeBase.ServersProcessing
         public void AddRequest(Func<CancellationToken, UniTask> request)
         {
             _requestQueue.Enqueue(request);
-            ProcessNext();
+            ProcessNextAsync().Forget();
         }
 
-        private async void ProcessNext()
+        private async UniTaskVoid ProcessNextAsync()
         {
-            if (_isProcessing || _requestQueue.Count == 0) 
-                return;
+            try
+            {
+                if (_isProcessing || _requestQueue.Count == 0) 
+                    return;
 
-            _isProcessing = true;
+                _isProcessing = true;
 
-            var request = _requestQueue.Dequeue();
-            await request(CancellationToken.None);
+                var request = _requestQueue.Dequeue();
+                await request(CancellationToken.None);
 
-            _isProcessing = false;
-            ProcessNext();
+                _isProcessing = false;
+                ProcessNextAsync().Forget();
+            }
+            catch (Exception e)
+            {
+                
+            }
         }
 
         public void ClearQueue()

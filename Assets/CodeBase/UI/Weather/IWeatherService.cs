@@ -8,7 +8,7 @@ namespace CodeBase.UI.Weather
     public interface IWeatherService : IDisposable
     {
         IReadOnlyReactiveProperty<string> WeatherInfo { get; }
-        UniTask LaunchWeatherContinuouslyRequesting(CancellationToken cancellationToken);
+        UniTask LaunchWeatherContinuouslyRequestingAsync(CancellationToken cancellationToken);
         UniTask ProcessWeatherAsync(CancellationToken cancellationToken);
         void Cleanup();
     }

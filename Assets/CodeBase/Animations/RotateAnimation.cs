@@ -18,13 +18,6 @@ namespace CodeBase.Animations
         private void Awake()
         {
             _initialRotation = _target.rotation;
-        }
-
-        public void Do()
-        {
-            _rotateTween?.Kill(true);
-
-            _target.rotation = _initialRotation;
 
             _rotateTween = _target
                     .DORotate(_rotationAxis * _targetRotationAngle, _rotationDuration, RotateMode.FastBeyond360)
@@ -32,13 +25,20 @@ namespace CodeBase.Animations
                     .SetEase(_easeType)
                     .SetLoops(_rotateInfinitely ? -1 : 0, LoopType.Incremental)
                     .OnKill(() => _rotateTween = null)
-                    .OnComplete(() => _rotateTween = null) 
+                    .OnComplete(() => _rotateTween = null)
                 ;
+        }
+
+        public void Do()
+        {
+            _target.rotation = _initialRotation;
+            
+            _rotateTween.Restart();
         }
 
         public void Stop()
         {
-            _rotateTween?.Kill(true);
+            _rotateTween.Pause();
 
             _target.rotation = _initialRotation;
         }

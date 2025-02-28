@@ -35,7 +35,7 @@ namespace CodeBase.Infrastructure.Installers
 
         private void BindUIFactories()
         {
-            Container.Bind<IDogFactUIFactory>().To<DogDogFactUIFactory>().AsSingle();
+            Container.Bind<IDogFactUIFactory>().To<DogFactUIFactory>().AsSingle();
             Container.Bind<ITabUIFactory>().To<TabUIFactory>().AsSingle();
         }
 
