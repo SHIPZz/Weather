@@ -1,7 +1,8 @@
 ﻿using System;
-using CodeBase.Infrastructure.States.StateMachine;
-using CodeBase.Infrastructure.States.States;
 using CodeBase.UI.Controllers;
+using CodeBase.UI.Facts;
+using CodeBase.UI.Services.Window;
+using CodeBase.UI.Weather;
 using UniRx;
 
 namespace CodeBase.UI.Home
@@ -9,33 +10,21 @@ namespace CodeBase.UI.Home
     public class HomeWindowController : IController<HomeWindow>
     {
         private readonly CompositeDisposable _compositeDisposable = new();
+        private readonly IWindowService _windowService;
         
-        private readonly IStateMachine _stateMachine;
-
         private HomeWindow _view;
 
-        public HomeWindowController(IStateMachine stateMachine)
-        {
-            _stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
-        }
+        public HomeWindowController(IWindowService windowService) => _windowService = windowService ?? throw new ArgumentNullException(nameof(windowService));
 
-        public void BindView(HomeWindow value)
-        {
-            _view = value;
-        }
+        public void BindView(HomeWindow value) => _view = value;
 
-        public void Initialize()
-        {
+        public void Initialize() =>
             _view
                 .TabSelected
                 .Subscribe(OnTabSelected)
                 .AddTo(_compositeDisposable);
-        }
 
-        public void Dispose()
-        {
-            _compositeDisposable?.Dispose();
-        }
+        public void Dispose() => _compositeDisposable?.Dispose();
 
         private void OnTabSelected(TabTypeId selectedTabId)
         {
@@ -45,17 +34,30 @@ namespace CodeBase.UI.Home
                     break;
 
                 case TabTypeId.Weather:
-                    _stateMachine.Enter<WeatherTabState>();
+                    OpenWeatherWindow();
                     break;
 
                 case TabTypeId.Dog:
-                    _stateMachine.Enter<DogTabState>();
+                    OpenDogFactWindow();
                     break;
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(selectedTabId), selectedTabId, "Tab doesn't exist");
             }
         }
-        
+
+        private void OpenDogFactWindow()
+        {
+            _windowService.Hide<WeatherWindow>();
+
+            _windowService.OpenWindow<DogFactWindow>();
+        }
+
+        private void OpenWeatherWindow()
+        {
+            _windowService.Hide<DogFactWindow>();
+
+            _windowService.OpenWindow<WeatherWindow>();
+        }
     }
 }

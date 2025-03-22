@@ -21,7 +21,7 @@ namespace CodeBase.UI.Home
         [Inject]
         private void Construct(ITabUIFactory tabUIFactory) => _tabUIFactory = tabUIFactory;
 
-        public override void Open()
+        public override void OnOpen()
         {
             _tabs.AddRange(_tabUIFactory.CreateAll(_tabLayout));
             _tabs.ForEach(x => x.Selected.Subscribe(SendTabSelectedEvent).AddTo(this));

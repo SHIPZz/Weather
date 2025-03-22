@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading;
 using CodeBase.UI.Controllers;
+using Cysharp.Threading.Tasks;
 using UniRx;
 
 namespace CodeBase.UI.Weather
@@ -10,7 +12,8 @@ namespace CodeBase.UI.Weather
         private readonly IWeatherService _weatherService;
 
         private WeatherWindow _view;
-        
+        private CancellationTokenSource _cancellationToken;
+
         public WeatherWindowController(IWeatherService weatherService)
         {
             _weatherService = weatherService ?? throw new ArgumentNullException(nameof(weatherService));
@@ -22,8 +25,13 @@ namespace CodeBase.UI.Weather
                 .WeatherInfo
                 .Subscribe(weather => _view.UpdateWeather(weather))
                 .AddTo(_compositeDisposable);
+            
+            _view
+                .OnOpenEvent
+                .Subscribe(_ => ProcessOpening())
+                .AddTo(_compositeDisposable);
         }
-
+        
         public void BindView(WeatherWindow value)
         {
             _view = value;
@@ -31,7 +39,21 @@ namespace CodeBase.UI.Weather
 
         public void Dispose()
         {
+            if (!_cancellationToken.IsCancellationRequested)
+                _cancellationToken?.Cancel();
+
+            _cancellationToken?.Dispose();
+            
+            _weatherService.Cleanup();
+            
             _compositeDisposable?.Dispose();
+        }
+
+        private void ProcessOpening()
+        {
+            _cancellationToken = new CancellationTokenSource();
+            
+            _weatherService.LaunchWeatherContinuouslyRequestingAsync(_cancellationToken.Token).Forget();
         }
     }
 }

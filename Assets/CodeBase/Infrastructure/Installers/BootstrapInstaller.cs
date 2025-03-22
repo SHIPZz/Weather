@@ -1,5 +1,4 @@
-﻿using CodeBase.Gameplay.Common.Time;
-using CodeBase.Gameplay.Dogs;
+﻿using CodeBase.Gameplay.Dogs;
 using CodeBase.Infrastructure.AssetManagement;
 using CodeBase.Infrastructure.Loading;
 using CodeBase.Infrastructure.States.Factory;
@@ -57,8 +56,6 @@ namespace CodeBase.Infrastructure.Installers
             Container.BindInterfacesAndSelfTo<BootstrapState>().AsSingle();
             Container.BindInterfacesAndSelfTo<LoadingHomeScreenState>().AsSingle();
             Container.BindInterfacesAndSelfTo<HomeScreenState>().AsSingle();
-            Container.BindInterfacesAndSelfTo<WeatherTabState>().AsSingle();
-            Container.BindInterfacesAndSelfTo<DogTabState>().AsSingle();
         }
 
         private void BindAppServices()
@@ -80,7 +77,6 @@ namespace CodeBase.Infrastructure.Installers
 
         private void BindCommonServices()
         {
-            Container.Bind<ITimeService>().To<UnityTimeService>().AsSingle();
             Container.Bind<ISceneLoader>().To<SceneLoader>().AsSingle();
         }
 

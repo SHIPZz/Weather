@@ -17,41 +17,35 @@ namespace CodeBase.UI.Facts
         private readonly List<DogFactData> _factDatas = new();
 
         private readonly Subject<string> _factSelected = new();
-        private readonly Subject<Unit> _opened = new();
 
         private IDogFactUIFactory _dogFactUIFactory;
         
         public IObservable<string> FactSelected => _factSelected;
-        public IObservable<Unit> Opened => _opened;
 
         [Inject]
-        private void Construct(IDogFactUIFactory dogFactUIFactory)
-        {
-            _dogFactUIFactory = dogFactUIFactory;
-        }
+        private void Construct(IDogFactUIFactory dogFactUIFactory) => _dogFactUIFactory = dogFactUIFactory;
 
         public void Init(IReadOnlyList<DogFactData> datas)
         {
-            _factDatas.AddRange(datas);
+            FillData(datas);
             CreateFactItems();
             SubscribeFactItemsEvents();
         }
-
-        public override void Open() => _opened.OnNext(Unit.Default);
 
         public void StopItemLoadingAnimation(string id) => _factItems.FirstOrDefault(x => x.ID == id)?.StopLoadingAnimation();
 
         public void ShowLoadingAnimation(string factItemId) => _factItems.FirstOrDefault(x => x.ID == factItemId)?.ShowLoadingAnimation();
 
-        private void SubscribeFactItemsEvents() => _factItems
-            .ForEach(x => x.Selected.Subscribe(_factSelected.OnNext).AddTo(this));
+        private void FillData(IReadOnlyList<DogFactData> datas) => _factDatas.AddRange(datas);
+
+        private void SubscribeFactItemsEvents() => 
+            _factItems.ForEach(x => x.Selected.Subscribe(_factSelected.OnNext)
+                .AddTo(this));
 
         private void CreateFactItems()
         {
-            foreach (DogFactData factData in _factDatas)
-            {
+            foreach (DogFactData factData in _factDatas) 
                 _factItems.Add(_dogFactUIFactory.CreateFactItem(_factLayout, factData));
-            }
         }
     }
 }

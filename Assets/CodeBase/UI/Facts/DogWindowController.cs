@@ -29,8 +29,8 @@ namespace CodeBase.UI.Facts
         public void Initialize()
         {
             _view
-                .Opened
-                .Subscribe(_ => InitView())
+                .OnOpenEvent
+                .Subscribe(_ => InitViewAsync(_cancellationToken.Token).Forget())
                 .AddTo(_compositeDisposable);
 
             _view
@@ -41,8 +41,6 @@ namespace CodeBase.UI.Facts
 
         private async UniTask ProcessGettingDogFactAsync(string id)
         {
-            DogFact dogFact;
-            
             try
             {
                 Cleanup();
@@ -51,12 +49,12 @@ namespace CodeBase.UI.Facts
 
                 _view.ShowLoadingAnimation(id);
 
-                dogFact = await _dogService.GetDogFactAsync(id, _cancellationToken.Token);
+                DogFact dogFact = await _dogService.GetDogFactAsync(id, _cancellationToken.Token);
 
                 _windowService
                     .OpenWindow<InfoPopupWindow>()
                     .Init(dogFact.attributes.name, dogFact.attributes.description);
-                
+
                 _view.StopItemLoadingAnimation(id);
             }
             catch (Exception e)
@@ -77,8 +75,10 @@ namespace CodeBase.UI.Facts
             Cleanup();
         }
 
-        private void InitView()
+        private async UniTaskVoid InitViewAsync(CancellationToken cancellationToken)
         {
+            await _dogService.GetDogFactsAsync(cancellationToken);
+
             _view.Init(_dogService.GetAll().AsFactDataList());
         }
 

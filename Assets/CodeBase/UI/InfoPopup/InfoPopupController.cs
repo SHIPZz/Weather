@@ -17,10 +17,10 @@ namespace CodeBase.UI.InfoPopup
 
         public void BindView(InfoPopupWindow value) => _view = value;
 
-        public void Initialize() => _view.Exited.Subscribe(_ =>  ProcessExitEvent()).AddTo(_compositeDisposable);
+        public void Initialize() => _view.OnOkButtonClicked
+            .Subscribe(_ =>  _windowService.Hide<InfoPopupWindow>())
+            .AddTo(_compositeDisposable);
 
         public void Dispose() => _compositeDisposable?.Dispose();
-        
-        private void ProcessExitEvent() => _windowService.Hide<InfoPopupWindow>();
     }
 }
